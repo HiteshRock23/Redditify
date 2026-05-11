@@ -1,0 +1,65 @@
+{
+"analysis": {
+"score": 20,
+"tone": "too formal",
+"readability": "hard",
+"issues": [
+"Post is too short and lacks context",
+"Lacks a clear hook to engage the reader",
+"Sounds too promotional and robotic"
+],
+"suggestions": [
+"Add a personal anecdote to make it more relatable",
+"Break up the text into shorter paragraphs",
+"Use a more conversational tone to make it feel more authentic"
+]
+},
+"rewrite": {
+"title": "A Test Post to See What Happens",
+"body": "I've been experimenting with building test posts on Reddit to see how they perform. This one is a simple test to see what kind of engagement I can get. I'm curious to see if anyone will even respond to this post. If you're reading this, thanks for taking the time to check it out! I'd love to hear your thoughts on what makes a good test post. Do you have any tips or suggestions for me?"
+},
+"subreddits": [
+{
+"name": "r/buildapc",
+"reason": "This subreddit is perfect for testing and experimenting with new posts",
+"tip": "Make sure to follow the community rules and engage with other users to get the most out of this subreddit",
+"confidence": "High"
+},
+{
+"name": "r/webdev",
+"reason": "This subreddit is great for discussing web development and testing new ideas",
+"tip": "Be sure to follow the community guidelines and ask for feedback on your posts",
+"confidence": "Medium"
+},
+{
+"name": "r/testpost",
+"reason": "This subreddit is specifically for testing and experimenting with new posts",
+"tip": "Make sure to follow the community rules and engage with other users to get the most out of this subreddit",
+"confidence": "Medium"
+},
+{
+"name": "r/learnprogramming",
+"reason": "This subreddit is great for learning and discussing programming topics",
+"tip": "Be sure to follow the community guidelines and ask for feedback on your posts",
+"confidence": "Low"
+},
+{
+"name": "r/webdesign",
+"reason": "This subreddit is perfect for discussing web design and testing new ideas",
+"tip": "Make sure to follow the community rules and engage with other users to get the most out of this subreddit",
+"confidence": "High"
+},
+{
+"name": "r/design",
+"reason": "This subreddit is great for discussing design topics and testing new ideas",
+"tip": "Be sure to follow the community guidelines and ask for feedback on your posts",
+"confidence": "Medium"
+},
+{
+"name": "r/test",
+"reason": "This subreddit is specifically for testing and experimenting with new posts",
+"tip": "Make sure to follow the community rules and engage with other users to get the most out of this subreddit",
+"confidence": "Medium"
+}
+]
+}

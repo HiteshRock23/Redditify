@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redditify | Optimize Your Posts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            50: '#fff4ed',
+                            400: '#ff8a4c',
+                            500: '#FF4500',
+                            600: '#e03d00',
+                            700: '#b83200',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-card {
+                @apply bg-gray-800/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl;
+            }
+            .glass-input {
+                @apply bg-gray-900/50 border border-white/20 rounded-xl focus:bg-gray-800 focus:ring-2 focus:ring-orange-500 outline-none transition-all duration-300 placeholder-gray-400 text-white;
+            }
+            .glass-button-primary {
+                @apply bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-orange-500/30 hover:scale-105 rounded-xl transition-all duration-300 font-semibold;
+            }
+            .glass-button-primary {
+                @apply bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-orange-500/30 hover:scale-105 rounded-xl transition-all duration-300 font-semibold;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-gray-200 font-sans p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10 mt-4 relative">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 drop-shadow-md">Redditify</h1>
+            <p class="text-gray-400 font-medium">Craft the perfect post for the perfect subreddit.</p>
+        </header>
+        
+        <!-- Error Message -->
+        {% if error %}
+            <div class="glass-card bg-red-900/50 border-red-500/50 text-red-200 p-4 mb-6">
+                <strong>Error:</strong> {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- Input Section -->
+        <div class="glass-card p-6 md:p-8 mb-8">
+            <form method="POST" action="{% url 'analyze_post' %}" onsubmit="showLoading(event)">
+                {% csrf_token %}
+                
+                <div class="mb-5">
+                    <label for="title" class="block text-sm font-semibold text-gray-200 mb-2">Post Title</label>
+                    <input type="text" id="title" name="title" value="{{ title|default:'' }}" placeholder="Enter a catchy title..." class="glass-input w-full p-4" required>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="body" class="block text-sm font-semibold text-gray-200 mb-2">Post Body</label>
+                    <textarea id="body" name="body" rows="6" placeholder="What's on your mind? Write your content here..." class="glass-input w-full p-4 resize-y" required>{{ body|default:'' }}</textarea>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button type="submit" class="glass-button-primary py-3 px-6 flex-1 text-lg">
+                        ✨ Optimize Post
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden glass-card p-8 text-center mb-8 animate-pulse">
+            <div class="flex flex-col items-center justify-center space-y-4">
+                <svg class="animate-spin h-8 w-8 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span id="loadingText" class="text-lg font-semibold text-gray-200">Analyzing your post...</span>
+            </div>
+        </div>
+
+        <!-- OUTPUT SECTION (Vertical Flow) -->
+        {% if analysis or rewrite or subreddits %}
+        <div class="mt-12 flex flex-col gap-10">
+            
+            <!-- 1. Analysis (Compact) -->
+            {% if analysis %}
+            <div class="glass-card p-5 md:p-6 hover:-translate-y-1 transition-all duration-300">
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                    <div class="flex-shrink-0 flex flex-col items-center justify-center bg-gray-900/60 rounded-xl h-24 w-24 shadow-inner border border-gray-700">
+                        <span class="text-3xl font-black text-white">{{ analysis.score }}</span>
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Score</span>
+                    </div>
+                    <div class="flex-grow w-full">
+                        <div class="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-gray-700/50">
+                            <span class="inline-flex items-center px-3 py-1.5 bg-gray-800/80 text-gray-200 text-xs font-bold rounded-lg border border-gray-700/50">
+                                Tone: {{ analysis.tone }}
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1.5 bg-gray-800/80 text-gray-200 text-xs font-bold rounded-lg border border-gray-700/50">
+                                Readability: {{ analysis.readability }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="font-semibold text-red-400 flex items-center gap-1.5 mb-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    Issues
+                                </span>
+                                <ul class="list-disc pl-5 text-gray-400 space-y-1">
+                                    {% for issue in analysis.issues %}
+                                    <li class="leading-snug">{{ issue }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-green-400 flex items-center gap-1.5 mb-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Suggestions
+                                </span>
+                                <ul class="list-disc pl-5 text-gray-400 space-y-1">
+                                    {% for suggestion in analysis.suggestions %}
+                                    <li class="leading-snug">{{ suggestion }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 2. Improved Post (MAIN FOCUS) -->
+            {% if rewrite %}
+            <div class="relative glass-card bg-gray-800/80 backdrop-blur-2xl p-8 md:p-10 border border-orange-500/40 shadow-[0_0_30px_rgba(255,69,0,0.15)] hover:shadow-[0_0_40px_rgba(255,69,0,0.25)] hover:-translate-y-1 transition-all duration-500 group">
+                <div class="absolute -top-4 -left-4 w-24 h-24 bg-orange-500/20 rounded-full blur-2xl pointer-events-none group-hover:bg-orange-500/30 transition-all duration-500"></div>
+                
+                <button onclick="copyToClipboard()" class="absolute top-6 right-6 bg-gray-800/80 hover:bg-orange-600 hover:border-orange-500 text-gray-200 border border-gray-600 shadow-lg px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 hover:scale-105 group/btn">
+                    <svg class="w-4 h-4 group-hover/btn:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Copy
+                </button>
+                
+                <div class="flex items-center gap-3 mb-8 relative z-10">
+                    <div class="p-2 bg-orange-500/20 rounded-lg text-orange-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    </div>
+                    <h2 class="text-sm font-black text-orange-500 uppercase tracking-widest">The Final Polished Version</h2>
+                </div>
+                
+                <div class="relative z-10">
+                    <div class="mb-6">
+                        <h3 class="font-extrabold text-white text-2xl md:text-3xl leading-tight" id="rewriteTitle">{{ rewrite.title }}</h3>
+                    </div>
+                    <div class="text-gray-300 text-lg whitespace-pre-wrap leading-relaxed font-medium" id="rewriteBody">{{ rewrite.body }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 3. Subreddit Suggestions -->
+            {% if subreddits %}
+            <div>
+                <h2 class="text-xl font-bold text-gray-300 mb-6 flex items-center gap-2 px-1">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path></svg>
+                    Recommended Subreddits
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for sub in subreddits %}
+                    <div class="glass-card p-5 hover:-translate-y-1 hover:border-gray-500/50 transition-all duration-300">
+                        <div class="flex justify-between items-start mb-3 gap-2">
+                            <h3 class="font-bold text-lg text-orange-400 break-words hover:text-orange-300 transition-colors">{{ sub.name }}</h3>
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-full shrink-0 border 
+                                {% if 'High' in sub.confidence or 'high' in sub.confidence %}
+                                    bg-green-900/40 text-green-400 border-green-800/50
+                                {% elif 'Medium' in sub.confidence or 'medium' in sub.confidence %}
+                                    bg-yellow-900/40 text-yellow-400 border-yellow-800/50
+                                {% else %}
+                                    bg-gray-800/80 text-gray-300 border-gray-600/50
+                                {% endif %}">
+                                {{ sub.confidence }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-400 mb-2 leading-relaxed">
+                            <strong class="text-gray-300">Why:</strong> {{ sub.reason }}
+                        </p>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            <strong class="text-gray-300">Tip:</strong> {{ sub.tip }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex items-center p-4 mb-4 text-white bg-gray-800/90 backdrop-blur-md rounded-xl shadow-[0_0_15px_rgba(255,69,0,0.3)] border border-orange-500/30 transition-all duration-300 translate-y-20 opacity-0 z-50">
+        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-orange-500 bg-orange-100/10 rounded-lg">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+        </div>
+        <div class="ml-3 text-sm font-semibold">Copied to clipboard!</div>
+    </div>
+
+    <!-- Scripts for interactivity -->
+    <script>
+        function showLoading(e) {
+            const loadingState = document.getElementById('loadingState');
+            const loadingText = document.getElementById('loadingText');
+            
+            loadingState.classList.remove('hidden');
+            loadingText.innerText = 'Analyzing your post...';
+
+            // Simulate progress to keep user engaged
+            setTimeout(() => {
+                loadingText.innerText = 'Improving your content...';
+            }, 2000);
+
+            setTimeout(() => {
+                loadingText.innerText = 'Finding best subreddits...';
+            }, 4000);
+            
+            // Allow form to submit normally
+        }
+
+        function copyToClipboard() {
+            const title = document.getElementById('rewriteTitle').innerText;
+            const body = document.getElementById('rewriteBody').innerText;
+            const textToCopy = title + '\n\n' + body;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast();
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            // Reset state
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
